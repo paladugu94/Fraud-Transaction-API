@@ -18,10 +18,12 @@ def predict():
             
             input_ = pd.DataFrame(json_, index=[0])
             
-            file_exists = os.path.isfile('file_name.csv') 
+            #Saving API post requests and response in a CSV file 
+            file_exists = os.path.isfile('output_response.csv') 
             
+            #Checking for duplicate post requests and flagging the response as Fraud=True from THIRD post request
             if file_exists:
-                temp = pd.read_csv('file_name.csv')
+                temp = pd.read_csv('output_response.csv')
                 old_data = temp.loc[:,temp.columns!="isFraud"]
                 new_data = pd.concat([old_data,input_],axis=0)
                 
@@ -30,6 +32,8 @@ def predict():
                 
                 if dup_check>=3 :
                     result = str('[True]')
+                
+                #If the POST request is not a duplicate one, following code for fraud detection model is executed for 'isFraud' response 
                 else :                    
                     query = input_.drop(['nameOrig', 'nameDest'], axis = 1)
                     query['type'] = np.where((query.type == 'TRANSFER'),int(0),query['type'])
@@ -82,7 +86,7 @@ if __name__ == '__main__':
     try:
         port = int(sys.argv[1]) # This is for a command-line input
     except:
-        port = 4444# If you don't provide any port the port will be set to 12345
+        port = 12345# If you don't provide any port the port will be set to 12345
 
     clf = joblib.load("model.pkl") # Load "model.pkl"
     print ('Model loaded')
